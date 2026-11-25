@@ -1,0 +1,29 @@
+/* Menu vertical a gauche (au-dessus du contenu sur petit ecran) */
+.menu .nav-link {
+    color: #fff;
+}
+
+.menu .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.menu .nav-link.active {
+    background-color: #fff;
+    color: #0d6efd;
+}
+
+/* Centre la presentation dans la page */
+.presentation {
+    min-height: 60vh;
+}
+
+@media (min-width: 768px) {
+    .menu {
+        width: 240px;
+        min-height: 100vh;
+    }
+
+    .presentation {
+        min-height: 100vh;
+    }
+}
