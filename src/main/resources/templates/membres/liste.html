@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Membres du bureau')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Vie du bureau</div>
+            <h1 class="page-title">Membres du bureau</h1>
+            <p class="page-subtitle">Gérez les membres, leurs rôles et leurs habilitations de dépense.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-accent" th:href="@{/membres/nouveau}">
+                <i class="bi bi-person-plus me-1"></i>Nouveau membre
+            </a>
+        </div>
+    </div>
+
+    <form class="filter-bar mb-4" method="get" th:action="@{/membres}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label" for="rechercheMembre">Rechercher</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input class="form-control border-start-0" id="rechercheMembre" name="q" type="search"
+                           placeholder="Nom, e-mail, rôle, promotion…" th:value="${recherche}">
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" type="submit">Filtrer</button>
+                <a class="btn btn-outline-secondary" th:href="@{/membres}" title="Réinitialiser">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-people me-2 text-warning"></i>Annuaire du bureau</span>
+            <span class="badge text-bg-light border" th:text="${#lists.size(membres)} + ' membre(s)'">6 membre(s)</span>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(membres)}" class="empty-state">
+                <i class="bi bi-person-x"></i>
+                Aucun membre ne correspond à votre recherche.
+                <div class="mt-3">
+                    <a class="btn btn-sm btn-primary" th:href="@{/membres/nouveau}">Ajouter un membre</a>
+                </div>
+            </div>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(membres)}">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th class="ps-4">Membre</th>
+                        <th>Rôle</th>
+                        <th>Promotion</th>
+                        <th>Habilitation</th>
+                        <th>Contact</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="membre : ${membres}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="avatar-initials"
+                                      th:text="${#strings.toUpperCase(#strings.substring(membre.prenom, 0, 1) + #strings.substring(membre.nom, 0, 1))}">LB</span>
+                                <div>
+                                    <a class="fw-bold text-decoration-none text-dark"
+                                       th:href="@{/membres/{id}(id=${membre.id})}">
+                                        <span th:text="${membre.prenom}">Léa</span>
+                                        <span th:text="${membre.nom}">Bernard</span>
+                                    </a>
+                                    <div class="small text-muted">Membre du BDE</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="fw-semibold" th:text="${membre.role}">Présidente</td>
+                        <td><span class="badge text-bg-light border" th:text="${membre.promotion}">TC 2026</span></td>
+                        <td>
+                            <div th:if="${membre.habilitation != null}">
+                                <span class="badge"
+                                      th:classappend="${membre.habilitation.actif} ? 'text-bg-success-soft' : 'text-bg-danger-soft'"
+                                      th:text="${membre.habilitation.actif ? 'Active' : 'Inactive'}">Active</span>
+                                <div class="small text-muted mt-1 money"
+                                     th:text="${#numbers.formatCurrency(membre.habilitation.plafondDepense)}">2 000,00 €</div>
+                            </div>
+                            <span th:if="${membre.habilitation == null}" class="text-muted small">
+                                <i class="bi bi-slash-circle me-1"></i>Aucune
+                            </span>
+                        </td>
+                        <td>
+                            <a class="small text-decoration-none" th:href="|mailto:${membre.email}|"
+                               th:text="${membre.email}">lea@bde.fr</a>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-1">
+                                <a class="btn btn-sm btn-outline-primary" th:href="@{/membres/{id}(id=${membre.id})}"
+                                   title="Consulter"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-sm btn-outline-primary" th:href="@{/membres/{id}/modifier(id=${membre.id})}"
+                                   title="Modifier"><i class="bi bi-pencil"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

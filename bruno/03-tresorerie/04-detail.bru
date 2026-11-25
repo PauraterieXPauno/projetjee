@@ -1,0 +1,15 @@
+meta {
+  name: Détail d'une ligne
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/tresorerie/{{ligneId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Créer un membre
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/membres
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nom": "Martin",
+    "prenom": "Julie",
+    "email": "julie.martin@bde-cytech.fr",
+    "role": "Responsable culture",
+    "promotion": "ING 2027"
+  }
+}
+
+script:post-response {
+  bru.setVar("membreCreeId", res.body.id);
+}

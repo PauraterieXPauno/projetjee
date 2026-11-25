@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Fiche document')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Document administratif</div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <h1 class="page-title" th:text="${document.titre}">Statuts du BDE</h1>
+                <span th:replace="~{fragments/layout :: badgeDocument(${document.statut})}"></span>
+            </div>
+            <p class="page-subtitle">
+                <span th:text="${document.type.libelle}">Statuts</span>
+                <span class="mx-2">·</span>
+                <span th:text="${#temporals.format(document.dateCreation, 'dd/MM/yyyy')}">01/01/2026</span>
+                <span class="mx-2">·</span>
+                <a th:if="${document.dossier != null}" class="text-decoration-none"
+                   th:href="@{/dossiers/{id}(id=${document.dossier.id})}"
+                   th:text="${document.dossier.nom}">Gouvernance</a>
+                <span th:if="${document.dossier == null}" class="text-muted">Sans dossier</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" th:href="@{/documents}">
+                <i class="bi bi-arrow-left me-1"></i>Bibliothèque
+            </a>
+            <a class="btn btn-primary" th:href="@{/documents/{id}/modifier(id=${document.id})}">
+                <i class="bi bi-pencil me-1"></i>Modifier
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-diagram-3 me-2 text-warning"></i>Circuit de validation</div>
+                <div class="card-body">
+                    <div class="timeline mb-4">
+                        <div class="timeline-step"
+                             th:classappend="${document.statut.ordinal() == 0 ? 'current' : 'done'}">
+                            <i class="bi bi-file-earmark me-1"></i>Brouillon
+                        </div>
+                        <div class="timeline-step"
+                             th:classappend="${document.statut.ordinal() > 1 ? 'done' : (document.statut.ordinal() == 1 ? 'current' : '')}">
+                            <i class="bi bi-send me-1"></i>En validation
+                        </div>
+                        <div class="timeline-step"
+                             th:classappend="${document.statut.ordinal() > 2 ? 'done' : (document.statut.ordinal() == 2 ? 'current' : '')}">
+                            <i class="bi bi-check2-circle me-1"></i>Validé
+                        </div>
+                        <div class="timeline-step"
+                             th:classappend="${document.statut.ordinal() == 3 ? 'current' : ''}">
+                            <i class="bi bi-archive me-1"></i>Archivé
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 p-3 rounded-3 bg-light">
+                        <div>
+                            <div class="fw-semibold text-dark" th:if="${prochainStatut != null}">
+                                Prochaine étape : <span th:text="${prochainStatut.libelle}">En validation</span>
+                            </div>
+                            <div class="fw-semibold text-dark" th:if="${prochainStatut == null}">
+                                Ce document est arrivé au terme de son circuit.
+                            </div>
+                            <div class="small text-muted">Les transitions sont strictement séquentielles.</div>
+                        </div>
+                        <form th:if="${prochainStatut != null}" method="post"
+                              th:action="@{/documents/{id}/statut(id=${document.id})}">
+                            <button class="btn btn-primary" type="submit">
+                                Passer à « <span th:text="${prochainStatut.libelle}">En validation</span> »
+                                <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-receipt me-2 text-warning"></i>Utilisé comme justificatif</span>
+                    <span class="badge text-bg-light border" th:text="${#lists.size(lignesTresorerie)}">1</span>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(lignesTresorerie)}" class="empty-state py-4">
+                        <i class="bi bi-link-45deg"></i>
+                        Aucune ligne de trésorerie ne référence ce document.
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(lignesTresorerie)}">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="ps-4">Ligne</th>
+                                <th>Événement</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="ligne : ${lignesTresorerie}">
+                                <td class="ps-4">
+                                    <a class="fw-semibold text-decoration-none text-dark"
+                                       th:href="@{/tresorerie/{id}/modifier(id=${ligne.id})}"
+                                       th:text="${ligne.libelle}">Facture traiteur</a>
+                                    <div class="small text-muted"
+                                         th:text="${#temporals.format(ligne.dateOperation, 'dd/MM/yyyy')}">01/01/2026</div>
+                                </td>
+                                <td class="small">
+                                    <a th:if="${ligne.evenement != null}" class="text-decoration-none"
+                                       th:href="@{/evenements/{id}(id=${ligne.evenement.id})}"
+                                       th:text="${ligne.evenement.titre}">Soirée</a>
+                                    <span th:if="${ligne.evenement == null}" class="text-muted">Hors événement</span>
+                                </td>
+                                <td class="money" th:text="${#numbers.formatCurrency(ligne.montant)}">3 100,00 €</td>
+                                <td><span th:replace="~{fragments/layout :: badgeLigne(${ligne.statut})}"></span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-info-circle me-2 text-warning"></i>Informations</div>
+                <div class="card-body">
+                    <dl class="detail-list mb-0">
+                        <dt>Type</dt>
+                        <dd><span th:replace="~{fragments/layout :: badgeTypeDocument(${document.type})}"></span></dd>
+                        <dt>Date de création</dt>
+                        <dd th:text="${#temporals.format(document.dateCreation, 'dd/MM/yyyy')}">01/01/2026</dd>
+                        <dt>Référence</dt>
+                        <dd>
+                            <a th:if="${document.reference != null}" th:href="${document.reference}"
+                               target="_blank" rel="noopener" class="text-break">
+                                <span th:text="${document.reference}">https://…</span>
+                                <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
+                            <span th:if="${document.reference == null}" class="text-muted">Non renseignée</span>
+                        </dd>
+                        <dt>Dossier</dt>
+                        <dd>
+                            <a th:if="${document.dossier != null}" class="text-decoration-none"
+                               th:href="@{/dossiers/{id}(id=${document.dossier.id})}"
+                               th:text="${document.dossier.nom}">Comptabilité</a>
+                            <span th:if="${document.dossier == null}" class="text-muted">Sans dossier</span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-folder-symlink me-2 text-warning"></i>Dossier associé</div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/documents/{id}/dossier(id=${document.id})}">
+                        <label class="form-label" for="dossierId">Choisir un dossier</label>
+                        <select class="form-select mb-2" id="dossierId" name="dossierId">
+                            <option value="">Sans dossier</option>
+                            <option th:each="d : ${dossiers}" th:value="${d.id}" th:text="${d.nom}"
+                                    th:selected="${document.dossier != null && document.dossier.id == d.id}">Comptabilité</option>
+                        </select>
+                        <button class="btn btn-outline-primary w-100" type="submit">
+                            <i class="bi bi-arrow-repeat me-1"></i>Mettre à jour le rattachement
+                        </button>
+                    </form>
+                    <div class="small text-muted mt-2">
+                        Choisir « Sans dossier » dissocie le document (relation 1-N).
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-people me-2 text-warning"></i>Relecteurs</span>
+                    <span class="badge text-bg-light border" th:text="${document.relecteurs.size()}">2</span>
+                </div>
+                <div class="card-body">
+                    <div th:if="${document.relecteurs.isEmpty()}" class="small text-muted mb-3">
+                        Aucun relecteur associé.
+                    </div>
+                    <div class="d-flex flex-column gap-2 mb-3" th:unless="${document.relecteurs.isEmpty()}">
+                        <span class="chip justify-content-between" th:each="relecteur : ${document.relecteurs}">
+                            <a class="text-decoration-none text-dark"
+                               th:href="@{/membres/{id}(id=${relecteur.id})}"
+                               th:text="${relecteur.nomComplet}">Léa Bernard</a>
+                            <form method="post"
+                                  th:action="@{/documents/{id}/relecteurs/{membreId}/supprimer(id=${document.id}, membreId=${relecteur.id})}">
+                                <button class="btn-chip-remove" type="submit" title="Dissocier">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </span>
+                    </div>
+
+                    <form method="post" th:action="@{/documents/{id}/relecteurs(id=${document.id})}"
+                          th:if="${!#lists.isEmpty(membresDisponibles)}">
+                        <label class="form-label" for="membreRelecteur">Associer un membre</label>
+                        <select class="form-select mb-2" id="membreRelecteur" name="membreId" required>
+                            <option value="">Sélectionner…</option>
+                            <option th:each="m : ${membresDisponibles}" th:value="${m.id}"
+                                    th:text="${m.nomComplet + ' · ' + m.role}">Hugo Dubois</option>
+                        </select>
+                        <button class="btn btn-outline-primary w-100" type="submit">
+                            <i class="bi bi-person-plus me-1"></i>Ajouter aux relecteurs
+                        </button>
+                    </form>
+                    <div class="small text-muted mt-3">
+                        Association N-N : partage du document avec plusieurs membres.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-danger border-opacity-25">
+                <div class="card-header text-danger"><i class="bi bi-exclamation-octagon me-2"></i>Suppression</div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Un document utilisé comme justificatif de trésorerie ne peut pas être supprimé.
+                    </p>
+                    <form method="post" th:action="@{/documents/{id}/supprimer(id=${document.id})}"
+                          onsubmit="return confirm('Supprimer définitivement ce document ?');">
+                        <button class="btn btn-outline-danger w-100" type="submit">
+                            <i class="bi bi-trash3 me-1"></i>Supprimer le document
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

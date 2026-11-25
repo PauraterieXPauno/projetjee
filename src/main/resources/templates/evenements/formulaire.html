@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${titrePage})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Organisation</div>
+            <h1 class="page-title" th:text="${titrePage}">Nouvel événement</h1>
+            <p class="page-subtitle">Définissez le cadre budgétaire et logistique. L'équipe et les lignes seront gérées depuis la fiche événement.</p>
+        </div>
+        <a class="btn btn-outline-secondary"
+           th:href="${evenementId != null} ? @{/evenements/{id}(id=${evenementId})} : @{/evenements}">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-4">
+            <form method="post" th:action="${action}" th:object="${evenementForm}">
+                <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+                    <div class="fw-bold mb-1">Le formulaire contient des erreurs.</div>
+                    <ul class="mb-0 small">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Erreur</li>
+                    </ul>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label" for="titre">Titre de l'événement <span class="text-danger">*</span></label>
+                        <input class="form-control" id="titre" type="text" th:field="*{titre}"
+                               th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'" placeholder="Gala annuel du BDE">
+                        <div class="invalid-feedback" th:errors="*{titre}">Titre invalide.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="statut">Statut <span class="text-danger">*</span></label>
+                        <select class="form-select" id="statut" th:field="*{statut}"
+                                th:classappend="${#fields.hasErrors('statut')} ? 'is-invalid'">
+                            <option th:each="s : ${statutsEvenement}" th:value="${s}" th:text="${s.libelle}">Planifié</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{statut}">Statut invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="date">Date <span class="text-danger">*</span></label>
+                        <input class="form-control" id="date" type="date" th:field="*{date}"
+                               th:classappend="${#fields.hasErrors('date')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{date}">Date invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="lieu">Lieu <span class="text-danger">*</span></label>
+                        <input class="form-control" id="lieu" type="text" th:field="*{lieu}"
+                               th:classappend="${#fields.hasErrors('lieu')} ? 'is-invalid'" placeholder="Pavillon Royal, Paris">
+                        <div class="invalid-feedback" th:errors="*{lieu}">Lieu invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="budgetPrevisionnel">Budget prévisionnel (€) <span class="text-danger">*</span></label>
+                        <input class="form-control" id="budgetPrevisionnel" type="number" step="0.01" min="0"
+                               th:field="*{budgetPrevisionnel}"
+                               th:classappend="${#fields.hasErrors('budgetPrevisionnel')} ? 'is-invalid'"
+                               placeholder="6500.00">
+                        <div class="invalid-feedback" th:errors="*{budgetPrevisionnel}">Budget invalide.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a class="btn btn-outline-secondary"
+                       th:href="${evenementId != null} ? @{/evenements/{id}(id=${evenementId})} : @{/evenements}">Annuler</a>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-check-lg me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

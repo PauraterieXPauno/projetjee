@@ -1,0 +1,15 @@
+meta {
+  name: Lignes de trésorerie de l'événement
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/v1/evenements/{{evenementId}}/lignes
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

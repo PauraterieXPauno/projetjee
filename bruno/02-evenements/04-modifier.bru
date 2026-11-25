@@ -1,0 +1,26 @@
+meta {
+  name: Modifier un événement
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/v1/evenements/{{evenementId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "titre": "Soirée d'intégration 2026",
+    "date": "2026-12-15",
+    "lieu": "Domaine de la Roseraie, Cergy",
+    "budgetPrevisionnel": 6800.00,
+    "statut": "EN_COURS"
+  }
+}

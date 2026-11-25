@@ -1,0 +1,15 @@
+meta {
+  name: Détacher un document
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/dossiers/{{dossierId}}/documents/{{documentSansJustificatifId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

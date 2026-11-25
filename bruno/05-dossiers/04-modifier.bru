@@ -1,0 +1,24 @@
+meta {
+  name: Modifier un dossier
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/v1/dossiers/{{dossierVideId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nom": "Archives 2024-2025",
+    "categorie": "Archives",
+    "description": "Documents clos de l'exercice précédent."
+  }
+}

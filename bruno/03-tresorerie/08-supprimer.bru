@@ -1,0 +1,15 @@
+meta {
+  name: Supprimer une ligne
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/tresorerie/{{ligneASupprimerId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

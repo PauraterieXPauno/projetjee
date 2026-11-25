@@ -1,0 +1,28 @@
+meta {
+  name: Créer un dossier
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/dossiers
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nom": "Budget prévisionnel 2027",
+    "categorie": "Trésorerie",
+    "description": "Hypothèses budgétaires et justificatifs du prochain exercice."
+  }
+}
+
+script:post-response {
+  bru.setVar("dossierCreeId", res.body.id);
+}

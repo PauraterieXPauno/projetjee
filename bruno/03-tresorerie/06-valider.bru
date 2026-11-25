@@ -1,0 +1,15 @@
+meta {
+  name: Valider explicitement une ligne
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/tresorerie/{{ligneId}}/valider
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

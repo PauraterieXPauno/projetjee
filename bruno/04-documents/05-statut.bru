@@ -1,0 +1,28 @@
+meta {
+  name: Faire avancer le statut
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/v1/documents/{{documentId}}/statut
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "statut": "EN_VALIDATION"
+  }
+}
+
+docs {
+  Seule l'étape suivante est autorisée :
+  BROUILLON -> EN_VALIDATION -> VALIDE -> ARCHIVE.
+  Le document 10 est initialement BROUILLON.
+}

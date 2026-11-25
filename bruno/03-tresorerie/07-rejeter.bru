@@ -1,0 +1,19 @@
+meta {
+  name: Rejeter une ligne
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/v1/tresorerie/{{ligneARejeterId}}/rejeter
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Le rejet ne supprime pas la ligne : elle est exclue du solde global et du budget réel.
+}

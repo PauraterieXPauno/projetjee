@@ -1,0 +1,34 @@
+meta {
+  name: Modifier une ligne
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/v1/tresorerie/{{ligneId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "libelle": "Décoration de la salle",
+    "type": "DEPENSE",
+    "montant": 375.00,
+    "categorie": "Logistique",
+    "dateOperation": "2026-11-20",
+    "evenementId": 1,
+    "createurId": 5,
+    "documentJustificatifId": null,
+    "validationExplicite": false
+  }
+}
+
+docs {
+  La ligne est réévaluée : sans habilitation active, elle reste EN_ATTENTE.
+}

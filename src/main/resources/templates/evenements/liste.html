@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Événements')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Organisation</div>
+            <h1 class="page-title">Événements</h1>
+            <p class="page-subtitle">Planifiez les événements du BDE, suivez leur budget et pilotez leurs lignes de trésorerie.</p>
+        </div>
+        <a class="btn btn-accent" th:href="@{/evenements/nouveau}">
+            <i class="bi bi-calendar-plus me-1"></i>Nouvel événement
+        </a>
+    </div>
+
+    <form class="filter-bar mb-4" method="get" th:action="@{/evenements}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label" for="rechercheEvenement">Rechercher</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input class="form-control border-start-0" id="rechercheEvenement" name="q" type="search"
+                           placeholder="Titre ou lieu…" th:value="${recherche}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="statutEvenement">Statut</label>
+                <select class="form-select" id="statutEvenement" name="statut">
+                    <option value="">Tous les statuts</option>
+                    <option th:each="s : ${statutsEvenement}" th:value="${s}"
+                            th:text="${s.libelle}" th:selected="${statutFiltre == s}">Planifié</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" type="submit">Filtrer</button>
+                <a class="btn btn-outline-secondary" th:href="@{/evenements}" title="Réinitialiser">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(evenements)}" class="card">
+        <div class="empty-state">
+            <i class="bi bi-calendar2-x"></i>
+            Aucun événement ne correspond à ces critères.
+            <div class="mt-3">
+                <a class="btn btn-sm btn-primary" th:href="@{/evenements/nouveau}">Créer un événement</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" th:unless="${#lists.isEmpty(evenements)}">
+        <div class="col-md-6 col-xl-4" th:each="evenement : ${evenements}" th:with="bilan=${bilans[evenement.id]}">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <div class="event-date">
+                            <span class="day" th:text="${#temporals.format(evenement.date, 'dd')}">12</span>
+                            <span class="month" th:text="${#temporals.format(evenement.date, 'MMM')}">déc.</span>
+                        </div>
+                        <span th:replace="~{fragments/layout :: badgeEvenement(${evenement.statut})}"></span>
+                    </div>
+                    <h2 class="h5 fw-bold mb-1">
+                        <a class="text-dark text-decoration-none"
+                           th:href="@{/evenements/{id}(id=${evenement.id})}"
+                           th:text="${evenement.titre}">Soirée d'intégration</a>
+                    </h2>
+                    <div class="small text-muted mb-3">
+                        <i class="bi bi-geo-alt me-1"></i><span th:text="${evenement.lieu}">Cergy</span>
+                        <span class="mx-1">·</span>
+                        <span th:text="${#temporals.format(evenement.date, 'dd/MM/yyyy')}">12/12/2026</span>
+                    </div>
+
+                    <div class="row g-2 small mb-3">
+                        <div class="col-6">
+                            <div class="meta-label">Budget prév.</div>
+                            <div class="meta-value money" th:text="${#numbers.formatCurrency(evenement.budgetPrevisionnel)}">6 500,00 €</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="meta-label">Dépenses</div>
+                            <div class="meta-value money money-negative"
+                                 th:text="${#numbers.formatCurrency(bilan.depensesValidees)}">3 100,00 €</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="meta-label">Solde net</div>
+                            <div class="meta-value money"
+                                 th:classappend="${bilan.soldeNet.signum() >= 0} ? 'money-positive' : 'money-negative'"
+                                 th:text="${#numbers.formatCurrency(bilan.soldeNet)}">1 100,00 €</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="meta-label">En attente</div>
+                            <div class="meta-value money money-pending"
+                                 th:text="${#numbers.formatCurrency(bilan.montantEnAttente)}">350,00 €</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between budget-progress-label mb-1">
+                            <span>Consommation du budget</span>
+                            <span th:text="${bilan.tauxConsommation} + ' %'">48 %</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar"
+                                 th:style="|width: ${bilan.tauxConsommation}%|"
+                                 th:attr="aria-valuenow=${bilan.tauxConsommation}"
+                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto d-flex gap-2">
+                        <a class="btn btn-sm btn-primary flex-grow-1" th:href="@{/evenements/{id}(id=${evenement.id})}">
+                            Ouvrir le dossier
+                        </a>
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{/evenements/{id}/modifier(id=${evenement.id})}"
+                           title="Modifier"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

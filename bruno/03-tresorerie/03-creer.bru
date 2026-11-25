@@ -1,0 +1,39 @@
+meta {
+  name: Créer une dépense
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/tresorerie
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "libelle": "Achat de matériel de signalétique",
+    "type": "DEPENSE",
+    "montant": 125.00,
+    "categorie": "Logistique",
+    "dateOperation": "2026-11-25",
+    "evenementId": 1,
+    "createurId": 5,
+    "documentJustificatifId": null,
+    "validationExplicite": false
+  }
+}
+
+docs {
+  Sarah (id 5) n'a pas d'habilitation active : la ligne est créée EN_ATTENTE.
+  Avec validationExplicite=true, elle serait directement VALIDEE.
+}
+
+script:post-response {
+  bru.setVar("ligneCreeeId", res.body.id);
+}

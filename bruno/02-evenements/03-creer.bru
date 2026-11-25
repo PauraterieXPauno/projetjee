@@ -1,0 +1,30 @@
+meta {
+  name: Créer un événement
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/evenements
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "titre": "Journée d'intégration de printemps",
+    "date": "2027-03-15",
+    "lieu": "Campus de Cergy",
+    "budgetPrevisionnel": 4200.00,
+    "statut": "PLANIFIE"
+  }
+}
+
+script:post-response {
+  bru.setVar("evenementCreeId", res.body.id);
+}

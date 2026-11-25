@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Fiche événement')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Dossier événement</div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <h1 class="page-title" th:text="${evenement.titre}">Soirée d'intégration 2026</h1>
+                <span th:replace="~{fragments/layout :: badgeEvenement(${evenement.statut})}"></span>
+            </div>
+            <p class="page-subtitle">
+                <i class="bi bi-calendar3 me-1"></i>
+                <span th:text="${#temporals.format(evenement.date, 'dd/MM/yyyy')}">12/12/2026</span>
+                <span class="mx-2">·</span>
+                <i class="bi bi-geo-alt me-1"></i><span th:text="${evenement.lieu}">Cergy</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" th:href="@{/evenements}">
+                <i class="bi bi-arrow-left me-1"></i>Liste
+            </a>
+            <a class="btn btn-primary" th:href="@{/evenements/{id}/modifier(id=${evenement.id})}">
+                <i class="bi bi-pencil me-1"></i>Modifier
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">Budget prévisionnel</div>
+                            <p class="kpi-value money" th:text="${#numbers.formatCurrency(bilan.budgetPrevisionnel)}">6 500,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-blue"><i class="bi bi-bullseye"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">Dépenses validées</div>
+                            <p class="kpi-value money money-negative" th:text="${#numbers.formatCurrency(bilan.depensesValidees)}">3 100,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-red"><i class="bi bi-arrow-up-right-circle"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">Solde net</div>
+                            <p class="kpi-value money"
+                               th:classappend="${bilan.soldeNet.signum() >= 0} ? 'money-positive' : 'money-negative'"
+                               th:text="${#numbers.formatCurrency(bilan.soldeNet)}">1 100,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-green"><i class="bi bi-wallet2"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">Recettes validées − dépenses validées</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">En attente</div>
+                            <p class="kpi-value money money-pending" th:text="${#numbers.formatCurrency(bilan.montantEnAttente)}">350,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-gold"><i class="bi bi-hourglass-split"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">
+                        <span th:text="${bilan.nombreEnAttente}">1</span> ligne(s) sur <span th:text="${bilan.nombreLignes}">4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-bar-chart-line me-2 text-warning"></i>Suivi budgétaire</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between budget-progress-label mb-1">
+                        <span>Consommation du budget prévisionnel</span>
+                        <span class="fw-bold" th:text="${bilan.tauxConsommation} + ' %'">48 %</span>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar"
+                             th:style="|width: ${bilan.tauxConsommation}%|"
+                             th:attr="aria-valuenow=${bilan.tauxConsommation}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <div class="meta-label">Recettes validées</div>
+                            <div class="money money-positive" th:text="${#numbers.formatCurrency(bilan.recettesValidees)}">4 200,00 €</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="meta-label">Budget réel</div>
+                            <div class="money" th:text="${#numbers.formatCurrency(bilan.budgetReel)}">3 100,00 €</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="meta-label">Écart au prévisionnel</div>
+                            <div class="money"
+                                 th:classappend="${bilan.ecartBudget.signum() >= 0} ? 'money-positive' : 'money-negative'"
+                                 th:text="${#numbers.formatCurrency(bilan.ecartBudget)}">3 400,00 €</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-cash-stack me-2 text-warning"></i>Lignes de trésorerie</span>
+                    <span class="badge text-bg-light border" th:text="${#lists.size(lignes)} + ' ligne(s)'">4 ligne(s)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(lignes)}" class="empty-state py-4">
+                        <i class="bi bi-receipt"></i>
+                        Aucune ligne de trésorerie pour cet événement.
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(lignes)}">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="ps-4">Opération</th>
+                                <th>Type</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="ligne : ${lignes}">
+                                <td class="ps-4">
+                                    <div class="fw-semibold" th:text="${ligne.libelle}">Billetterie</div>
+                                    <div class="small text-muted">
+                                        <span th:text="${ligne.categorie}">Billetterie</span>
+                                        <span class="mx-1">·</span>
+                                        <span th:text="${#temporals.format(ligne.dateOperation, 'dd/MM/yyyy')}">01/01/2026</span>
+                                        <span class="mx-1">·</span>
+                                        <span th:text="${ligne.createur.nomComplet}">Léa Bernard</span>
+                                    </div>
+                                </td>
+                                <td><span th:replace="~{fragments/layout :: badgeTypeLigne(${ligne.type})}"></span></td>
+                                <td class="money"
+                                    th:classappend="${ligne.type.toString() == 'RECETTE'} ? 'money-positive' : 'money-negative'"
+                                    th:text="${#numbers.formatCurrency(ligne.montant)}">4 200,00 €</td>
+                                <td><span th:replace="~{fragments/layout :: badgeLigne(${ligne.statut})}"></span></td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1 flex-wrap justify-content-end">
+                                        <form th:if="${ligne.statut.toString() != 'VALIDEE'}" method="post"
+                                              th:action="@{/tresorerie/{id}/valider(id=${ligne.id})}">
+                                            <input type="hidden" name="retour" th:value="|/evenements/${evenement.id}|">
+                                            <button class="btn btn-sm btn-outline-success" type="submit" title="Valider explicitement">
+                                                <i class="bi bi-check2"></i>
+                                            </button>
+                                        </form>
+                                        <form th:if="${ligne.statut.toString() != 'REJETEE'}" method="post"
+                                              th:action="@{/tresorerie/{id}/rejeter(id=${ligne.id})}">
+                                            <input type="hidden" name="retour" th:value="|/evenements/${evenement.id}|">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit" title="Rejeter la ligne">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" th:action="@{/tresorerie/{id}/detacher(id=${ligne.id})}">
+                                            <input type="hidden" name="retour" th:value="|/evenements/${evenement.id}|">
+                                            <button class="btn btn-sm btn-outline-secondary" type="submit" title="Détacher de l'événement">
+                                                <i class="bi bi-link-45deg"></i>
+                                            </button>
+                                        </form>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           th:href="@{/tresorerie/{id}/modifier(id=${ligne.id})}" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-plus-circle me-2 text-warning"></i>Ajouter une ligne de trésorerie</div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/evenements/{id}/tresorerie(id=${evenement.id})}"
+                          th:object="${tresorerieForm}">
+                        <div class="alert alert-danger py-2 small" th:if="${#fields.hasAnyErrors()}">
+                            <div th:each="err : ${#fields.errors('*')}" th:text="${err}">Erreur</div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="libelle">Libellé <span class="text-danger">*</span></label>
+                                <input class="form-control" id="libelle" type="text" th:field="*{libelle}"
+                                       th:classappend="${#fields.hasErrors('libelle')} ? 'is-invalid'"
+                                       placeholder="Location de matériel">
+                                <div class="invalid-feedback" th:errors="*{libelle}">Libellé invalide.</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="type">Type</label>
+                                <select class="form-select" id="type" th:field="*{type}">
+                                    <option th:each="t : ${typesLigne}" th:value="${t}" th:text="${t.libelle}">Dépense</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="montant">Montant (€) <span class="text-danger">*</span></label>
+                                <input class="form-control" id="montant" type="number" step="0.01" min="0.01"
+                                       th:field="*{montant}"
+                                       th:classappend="${#fields.hasErrors('montant')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{montant}">Montant invalide.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="categorie">Catégorie <span class="text-danger">*</span></label>
+                                <input class="form-control" id="categorie" type="text" th:field="*{categorie}"
+                                       th:classappend="${#fields.hasErrors('categorie')} ? 'is-invalid'"
+                                       placeholder="Logistique">
+                                <div class="invalid-feedback" th:errors="*{categorie}">Catégorie invalide.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="dateOperation">Date de l'opération</label>
+                                <input class="form-control" id="dateOperation" type="date" th:field="*{dateOperation}"
+                                       th:classappend="${#fields.hasErrors('dateOperation')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{dateOperation}">Date invalide.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="createurId">Créateur <span class="text-danger">*</span></label>
+                                <select class="form-select" id="createurId" th:field="*{createurId}"
+                                        th:classappend="${#fields.hasErrors('createurId')} ? 'is-invalid'">
+                                    <option value="">Sélectionner…</option>
+                                    <option th:each="m : ${membres}" th:value="${m.id}"
+                                            th:text="${m.nomComplet + ' · ' + m.role}">Léa Bernard</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{createurId}">Créateur obligatoire.</div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label" for="documentJustificatifId">Document justificatif</label>
+                                <select class="form-select" id="documentJustificatifId" th:field="*{documentJustificatifId}">
+                                    <option value="">Aucun justificatif</option>
+                                    <option th:each="doc : ${documents}" th:value="${doc.id}"
+                                            th:text="${doc.titre + ' (' + doc.type.libelle + ')'}">Facture</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" id="validationExplicite" type="checkbox"
+                                           th:field="*{validationExplicite}">
+                                    <label class="form-check-label" for="validationExplicite">Validation explicite</label>
+                                    <div class="form-text">Outrepasse le plafond d'habilitation.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-plus-lg me-1"></i>Ajouter la ligne
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card" th:if="${!#lists.isEmpty(lignesNonRattachees)}">
+                <div class="card-header"><i class="bi bi-link me-2 text-warning"></i>Rattacher une ligne existante</div>
+                <div class="card-body">
+                    <form class="row g-2 align-items-end" method="post"
+                          th:action="@{/evenements/{id}/tresorerie/rattacher(id=${evenement.id})}">
+                        <div class="col-md-9">
+                            <label class="form-label" for="ligneId">Ligne non rattachée</label>
+                            <select class="form-select" id="ligneId" name="ligneId" required>
+                                <option value="">Sélectionner une ligne…</option>
+                                <option th:each="l : ${lignesNonRattachees}" th:value="${l.id}"
+                                        th:text="${l.libelle + ' · ' + #numbers.formatCurrency(l.montant) + ' · ' + l.statut.libelle}">
+                                    Ligne
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100" type="submit">Rattacher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-people me-2 text-warning"></i>Équipe organisatrice</span>
+                    <span class="badge text-bg-light border" th:text="${#lists.size(organisateurs)}">3</span>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(organisateurs)}" class="small text-muted mb-3">
+                        Aucun organisateur associé.
+                    </div>
+                    <div class="d-flex flex-column gap-2 mb-3" th:unless="${#lists.isEmpty(organisateurs)}">
+                        <span class="chip justify-content-between" th:each="organisateur : ${organisateurs}">
+                            <a class="text-decoration-none text-dark"
+                               th:href="@{/membres/{id}(id=${organisateur.id})}"
+                               th:text="${organisateur.nomComplet}">Léa Bernard</a>
+                            <form method="post"
+                                  th:action="@{/evenements/{id}/organisateurs/{membreId}/supprimer(id=${evenement.id}, membreId=${organisateur.id})}">
+                                <button class="btn-chip-remove" type="submit" title="Dissocier">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </span>
+                    </div>
+
+                    <form method="post" th:action="@{/evenements/{id}/organisateurs(id=${evenement.id})}"
+                          th:if="${!#lists.isEmpty(organisateursDisponibles)}">
+                        <label class="form-label" for="membreOrganisateur">Associer un membre</label>
+                        <select class="form-select mb-2" id="membreOrganisateur" name="membreId" required>
+                            <option value="">Sélectionner…</option>
+                            <option th:each="m : ${organisateursDisponibles}" th:value="${m.id}"
+                                    th:text="${m.nomComplet + ' · ' + m.role}">Hugo Dubois</option>
+                        </select>
+                        <button class="btn btn-outline-primary w-100" type="submit">
+                            <i class="bi bi-person-plus me-1"></i>Ajouter à l'équipe
+                        </button>
+                    </form>
+                    <div class="small text-muted mt-3">
+                        Association N-N : un membre peut organiser plusieurs événements.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-info-circle me-2 text-warning"></i>Règles appliquées</div>
+                <div class="card-body small text-muted">
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2">Une dépense est validée automatiquement si le créateur possède une habilitation active et si le montant respecte son plafond.</li>
+                        <li class="mb-2">Sinon elle reste <strong>en attente</strong> jusqu'à validation explicite.</li>
+                        <li>Le rejet exclut la ligne du solde sans la supprimer.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-danger border-opacity-25">
+                <div class="card-header text-danger"><i class="bi bi-exclamation-octagon me-2"></i>Suppression</div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        La suppression est bloquée si des lignes validées existent.
+                        Les lignes en attente ou rejetées seront simplement détachées.
+                    </p>
+                    <form method="post" th:action="@{/evenements/{id}/supprimer(id=${evenement.id})}"
+                          onsubmit="return confirm('Supprimer cet événement ?');">
+                        <button class="btn btn-outline-danger w-100" type="submit">
+                            <i class="bi bi-trash3 me-1"></i>Supprimer l'événement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

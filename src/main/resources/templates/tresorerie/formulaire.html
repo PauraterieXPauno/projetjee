@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${titrePage})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Comptabilité</div>
+            <h1 class="page-title" th:text="${titrePage}">Nouvelle ligne de trésorerie</h1>
+            <p class="page-subtitle">Le statut initial dépend du type, de l'habilitation du créateur et du montant.</p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/tresorerie}">
+            <i class="bi bi-arrow-left me-1"></i>Journal
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="post" th:action="${action}" th:object="${tresorerieForm}">
+                        <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                            <div class="fw-bold mb-1">Le formulaire contient des erreurs.</div>
+                            <ul class="mb-0 small">
+                                <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Erreur</li>
+                            </ul>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label" for="libelle">Libellé <span class="text-danger">*</span></label>
+                                <input class="form-control" id="libelle" type="text" th:field="*{libelle}"
+                                       th:classappend="${#fields.hasErrors('libelle')} ? 'is-invalid'"
+                                       placeholder="Location de la salle">
+                                <div class="invalid-feedback" th:errors="*{libelle}">Libellé invalide.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="montant">Montant (€) <span class="text-danger">*</span></label>
+                                <input class="form-control" id="montant" type="number" step="0.01" min="0.01"
+                                       th:field="*{montant}"
+                                       th:classappend="${#fields.hasErrors('montant')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{montant}">Montant invalide.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="type">Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="type" th:field="*{type}">
+                                    <option th:each="t : ${typesLigne}" th:value="${t}" th:text="${t.libelle}">Dépense</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="categorie">Catégorie <span class="text-danger">*</span></label>
+                                <input class="form-control" id="categorie" type="text" th:field="*{categorie}"
+                                       th:classappend="${#fields.hasErrors('categorie')} ? 'is-invalid'"
+                                       placeholder="Logistique">
+                                <div class="invalid-feedback" th:errors="*{categorie}">Catégorie invalide.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="dateOperation">Date de l'opération <span class="text-danger">*</span></label>
+                                <input class="form-control" id="dateOperation" type="date" th:field="*{dateOperation}"
+                                       th:classappend="${#fields.hasErrors('dateOperation')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{dateOperation}">Date invalide.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="createurId">Créateur <span class="text-danger">*</span></label>
+                                <select class="form-select" id="createurId" th:field="*{createurId}"
+                                        th:classappend="${#fields.hasErrors('createurId')} ? 'is-invalid'">
+                                    <option value="">Sélectionner un membre…</option>
+                                    <option th:each="m : ${membres}" th:value="${m.id}"
+                                            th:text="${m.nomComplet + ' · ' + m.role}">Léa Bernard</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{createurId}">Créateur obligatoire.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="evenementId">Événement</label>
+                                <select class="form-select" id="evenementId" th:field="*{evenementId}">
+                                    <option value="">Hors événement</option>
+                                    <option th:each="e : ${evenements}" th:value="${e.id}" th:text="${e.titre}">Gala</option>
+                                </select>
+                                <div class="form-text">L'événement peut être associé ou dissocié ultérieurement.</div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label" for="documentJustificatifId">Document justificatif</label>
+                                <select class="form-select" id="documentJustificatifId" th:field="*{documentJustificatifId}">
+                                    <option value="">Aucun</option>
+                                    <option th:each="d : ${documents}" th:value="${d.id}"
+                                            th:text="${d.titre + ' (' + d.type.libelle + ')'}">Facture</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" id="validationExplicite" type="checkbox"
+                                           th:field="*{validationExplicite}">
+                                    <label class="form-check-label" for="validationExplicite">Validation explicite</label>
+                                    <div class="form-text">Force la validation malgré le plafond.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <a class="btn btn-outline-secondary" th:href="@{/tresorerie}">Annuler</a>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-check-lg me-1"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-shield-check me-2 text-warning"></i>Règle de validation</div>
+                <div class="card-body">
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2">Une <strong>recette</strong> est validée automatiquement.</li>
+                        <li class="mb-2">Une <strong>dépense</strong> est validée si le créateur possède une habilitation active et si le montant ne dépasse pas son plafond.</li>
+                        <li class="mb-2">Sinon, elle est enregistrée <strong>en attente</strong>.</li>
+                        <li>La case « Validation explicite » permet de valider immédiatement une dépense hors plafond.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

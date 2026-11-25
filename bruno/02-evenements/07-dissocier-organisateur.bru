@@ -1,0 +1,15 @@
+meta {
+  name: Dissocier un organisateur
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/evenements/{{evenementId}}/organisateurs/5
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Détail d'un document
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/documents/{{documentId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

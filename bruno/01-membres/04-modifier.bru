@@ -1,0 +1,26 @@
+meta {
+  name: Modifier un membre
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/v1/membres/{{membreId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nom": "Bernard",
+    "prenom": "Léa",
+    "email": "lea.bernard@bde-cytech.fr",
+    "role": "Présidente du BDE",
+    "promotion": "TC 2026"
+  }
+}

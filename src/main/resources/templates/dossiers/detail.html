@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dossier')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div class="d-flex align-items-center gap-3">
+            <span class="doc-icon" style="width: 3.5rem; height: 3.5rem; font-size: 1.5rem;">
+                <i class="bi bi-folder2-open"></i>
+            </span>
+            <div>
+                <div class="page-kicker">Dossier administratif</div>
+                <h1 class="page-title" th:text="${dossier.nom}">Comptabilité 2025-2026</h1>
+                <p class="page-subtitle mb-0">
+                    <span th:text="${dossier.categorie}">Trésorerie</span>
+                    <span class="mx-2">·</span>
+                    <span th:text="${documents.size()}">4</span> document(s)
+                </p>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" th:href="@{/dossiers}">
+                <i class="bi bi-arrow-left me-1"></i>Dossiers
+            </a>
+            <a class="btn btn-primary" th:href="@{/dossiers/{id}/modifier(id=${dossier.id})}">
+                <i class="bi bi-pencil me-1"></i>Modifier
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-files me-2 text-warning"></i>Documents du dossier</span>
+                    <a class="btn btn-sm btn-accent"
+                       th:href="@{/documents/nouveau(dossierId=${dossier.id})}">
+                        <i class="bi bi-plus-lg me-1"></i>Nouveau document
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(documents)}" class="empty-state py-4">
+                        <i class="bi bi-folder-plus"></i>
+                        Ce dossier ne contient encore aucun document.
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(documents)}">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="ps-4">Document</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="document : ${documents}">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="doc-icon"><i class="bi bi-file-earmark-text"></i></span>
+                                        <div>
+                                            <a class="fw-semibold text-decoration-none text-dark"
+                                               th:href="@{/documents/{id}(id=${document.id})}"
+                                               th:text="${document.titre}">Facture traiteur</a>
+                                            <div class="small text-muted"
+                                                 th:text="${#temporals.format(document.dateCreation, 'dd/MM/yyyy')}">01/01/2026</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span th:replace="~{fragments/layout :: badgeTypeDocument(${document.type})}"></span></td>
+                                <td><span th:replace="~{fragments/layout :: badgeDocument(${document.statut})}"></span></td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1">
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           th:href="@{/documents/{id}(id=${document.id})}" title="Consulter">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <form method="post"
+                                              th:action="@{/dossiers/{id}/documents/{documentId}/detacher(id=${dossier.id}, documentId=${document.id})}">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit"
+                                                    title="Dissocier du dossier">
+                                                <i class="bi bi-link-45deg"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-info-circle me-2 text-warning"></i>À propos</div>
+                <div class="card-body">
+                    <dl class="detail-list mb-0">
+                        <dt>Catégorie</dt>
+                        <dd th:text="${dossier.categorie}">Trésorerie</dd>
+                        <dt>Description</dt>
+                        <dd class="fw-normal text-muted"
+                            th:text="${dossier.description != null ? dossier.description : 'Aucune description.'}">
+                            Justificatifs de l'exercice.
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-link me-2 text-warning"></i>Rattacher un document</div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(documentsDisponibles)}" class="small text-muted">
+                        Aucun document sans dossier n'est disponible.
+                    </div>
+                    <form th:unless="${#lists.isEmpty(documentsDisponibles)}" method="post"
+                          th:action="@{/dossiers/{id}/documents(id=${dossier.id})}">
+                        <label class="form-label" for="documentId">Document sans dossier</label>
+                        <select class="form-select mb-2" id="documentId" name="documentId" required>
+                            <option value="">Sélectionner…</option>
+                            <option th:each="d : ${documentsDisponibles}" th:value="${d.id}"
+                                    th:text="${d.titre + ' (' + d.type.libelle + ')'}">Devis photographe</option>
+                        </select>
+                        <button class="btn btn-outline-primary w-100" type="submit">
+                            <i class="bi bi-folder-plus me-1"></i>Rattacher au dossier
+                        </button>
+                    </form>
+                    <div class="small text-muted mt-2">
+                        Relation 1-N : le document est déplacé vers ce dossier.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-danger border-opacity-25">
+                <div class="card-header text-danger"><i class="bi bi-exclamation-octagon me-2"></i>Suppression</div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Un dossier contenant des documents ne peut pas être supprimé.
+                        Dissociez ou déplacez d'abord ses documents.
+                    </p>
+                    <form method="post" th:action="@{/dossiers/{id}/supprimer(id=${dossier.id})}"
+                          onsubmit="return confirm('Supprimer ce dossier ?');">
+                        <button class="btn btn-outline-danger w-100" type="submit"
+                                th:disabled="${!#lists.isEmpty(documents)}">
+                            <i class="bi bi-trash3 me-1"></i>Supprimer le dossier
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${titrePage})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Mini-Drive</div>
+            <h1 class="page-title" th:text="${titrePage}">Nouveau document</h1>
+            <p class="page-subtitle">Le document est créé au statut « Brouillon ». Son circuit de validation se gère ensuite depuis sa fiche.</p>
+        </div>
+        <a class="btn btn-outline-secondary"
+           th:href="${documentId != null} ? @{/documents/{id}(id=${documentId})} : @{/documents}">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-4">
+            <form method="post" th:action="${action}" th:object="${documentForm}">
+                <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+                    <div class="fw-bold mb-1">Le formulaire contient des erreurs.</div>
+                    <ul class="mb-0 small">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Erreur</li>
+                    </ul>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label" for="titre">Titre du document <span class="text-danger">*</span></label>
+                        <input class="form-control" id="titre" type="text" th:field="*{titre}"
+                               th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'"
+                               placeholder="Facture traiteur - gala">
+                        <div class="invalid-feedback" th:errors="*{titre}">Titre invalide.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="type">Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type" th:field="*{type}"
+                                th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'">
+                            <option value="">Sélectionner…</option>
+                            <option th:each="t : ${typesDocument}" th:value="${t}" th:text="${t.libelle}">Facture</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{type}">Type obligatoire.</div>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="reference">Référence ou lien</label>
+                        <input class="form-control" id="reference" type="text" th:field="*{reference}"
+                               placeholder="https://drive.bde.fr/…">
+                        <div class="form-text">Lien vers le fichier stocké sur le Drive du BDE.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="dateCreation">Date de création</label>
+                        <input class="form-control" id="dateCreation" type="date" th:field="*{dateCreation}"
+                               th:classappend="${#fields.hasErrors('dateCreation')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{dateCreation}">Date invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="dossierId">Dossier</label>
+                        <select class="form-select" id="dossierId" th:field="*{dossierId}">
+                            <option value="">Sans dossier</option>
+                            <option th:each="d : ${dossiers}" th:value="${d.id}" th:text="${d.nom}">Comptabilité</option>
+                        </select>
+                        <div class="form-text">Le dossier peut aussi être associé ultérieurement.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a class="btn btn-outline-secondary"
+                       th:href="${documentId != null} ? @{/documents/{id}(id=${documentId})} : @{/documents}">Annuler</a>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-check-lg me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

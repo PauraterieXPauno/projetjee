@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${titrePage})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Annuaire</div>
+            <h1 class="page-title" th:text="${titrePage}">Nouveau membre</h1>
+            <p class="page-subtitle">Renseignez les informations administratives du membre du bureau.</p>
+        </div>
+        <a class="btn btn-outline-secondary"
+           th:href="${membreId != null} ? @{/membres/{id}(id=${membreId})} : @{/membres}">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-4">
+            <form method="post" th:action="${action}" th:object="${membreForm}">
+                <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+                    <div class="fw-bold mb-1">Le formulaire contient des erreurs.</div>
+                    <ul class="mb-0 small">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Erreur</li>
+                    </ul>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="prenom">Prénom <span class="text-danger">*</span></label>
+                        <input class="form-control" id="prenom" type="text" th:field="*{prenom}"
+                               th:classappend="${#fields.hasErrors('prenom')} ? 'is-invalid'" placeholder="Léa">
+                        <div class="invalid-feedback" th:errors="*{prenom}">Prénom invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="nom">Nom <span class="text-danger">*</span></label>
+                        <input class="form-control" id="nom" type="text" th:field="*{nom}"
+                               th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid'" placeholder="Bernard">
+                        <div class="invalid-feedback" th:errors="*{nom}">Nom invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="email">Adresse e-mail <span class="text-danger">*</span></label>
+                        <input class="form-control" id="email" type="email" th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" placeholder="prenom.nom@bde-cytech.fr">
+                        <div class="invalid-feedback" th:errors="*{email}">E-mail invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="role">Rôle dans le bureau <span class="text-danger">*</span></label>
+                        <input class="form-control" id="role" type="text" th:field="*{role}"
+                               th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'" placeholder="Trésorier">
+                        <div class="invalid-feedback" th:errors="*{role}">Rôle invalide.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="promotion">Promotion <span class="text-danger">*</span></label>
+                        <input class="form-control" id="promotion" type="text" th:field="*{promotion}"
+                               th:classappend="${#fields.hasErrors('promotion')} ? 'is-invalid'" placeholder="TC 2026">
+                        <div class="invalid-feedback" th:errors="*{promotion}">Promotion invalide.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a class="btn btn-outline-secondary"
+                       th:href="${membreId != null} ? @{/membres/{id}(id=${membreId})} : @{/membres}">Annuler</a>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-check-lg me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
