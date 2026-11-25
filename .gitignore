@@ -1,5 +1,8 @@
 HELP.md
 target/
+
+### Base H2 générée au démarrage ###
+data/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
