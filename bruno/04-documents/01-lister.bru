@@ -1,0 +1,15 @@
+meta {
+  name: Lister les documents
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/documents?statut=EN_VALIDATION&type=DEVIS
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

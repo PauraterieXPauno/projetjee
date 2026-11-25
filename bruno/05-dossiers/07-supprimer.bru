@@ -1,0 +1,19 @@
+meta {
+  name: Supprimer un dossier vide
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/dossiers/{{dossierVideId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Le dossier 6 est vide. La suppression d'un dossier contenant des documents renvoie HTTP 400.
+}

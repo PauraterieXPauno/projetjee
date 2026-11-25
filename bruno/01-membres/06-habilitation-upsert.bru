@@ -1,0 +1,24 @@
+meta {
+  name: Créer ou modifier l'habilitation
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/api/v1/membres/{{membreId}}/habilitation
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "plafondDepense": 2500.00,
+    "actif": true,
+    "dateAttribution": "2026-11-25"
+  }
+}

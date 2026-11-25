@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Opération impossible')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container py-5">
+    <div class="card mx-auto" style="max-width: 44rem;">
+        <div class="card-body text-center p-5">
+            <span class="kpi-icon bg-soft-gold mx-auto mb-3" style="width: 3.5rem; height: 3.5rem; font-size: 1.5rem;">
+                <i class="bi bi-shield-exclamation"></i>
+            </span>
+            <h1 class="h3 fw-bold">Opération impossible</h1>
+            <p class="text-muted" th:text="${message}">Cette action est bloquée par une règle métier.</p>
+            <div class="d-flex justify-content-center gap-2 mt-4">
+                <a class="btn btn-primary" th:href="@{/}">Retour au tableau de bord</a>
+                <a class="btn btn-outline-secondary" href="javascript:history.back()">Revenir en arrière</a>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

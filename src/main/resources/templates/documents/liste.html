@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Documents')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Mini-Drive administratif</div>
+            <h1 class="page-title">Documents</h1>
+            <p class="page-subtitle">Centralisez les statuts, autorisations, devis, factures et PV. Associez des relecteurs et suivez le circuit de validation.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" th:href="@{/dossiers}">
+                <i class="bi bi-folder2-open me-1"></i>Dossiers
+            </a>
+            <a class="btn btn-accent" th:href="@{/documents/nouveau}">
+                <i class="bi bi-file-earmark-plus me-1"></i>Nouveau document
+            </a>
+        </div>
+    </div>
+
+    <form class="filter-bar mb-4" method="get" th:action="@{/documents}">
+        <div class="row g-2 align-items-end">
+            <div class="col-lg-4">
+                <label class="form-label" for="rechercheDocument">Rechercher</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input class="form-control border-start-0" id="rechercheDocument" name="q" type="search"
+                           placeholder="Titre, référence ou dossier…" th:value="${recherche}">
+                </div>
+            </div>
+            <div class="col-sm-4 col-lg-2">
+                <label class="form-label" for="typeDocument">Type</label>
+                <select class="form-select" id="typeDocument" name="type">
+                    <option value="">Tous</option>
+                    <option th:each="t : ${typesDocument}" th:value="${t}" th:text="${t.libelle}"
+                            th:selected="${typeFiltre == t}">Facture</option>
+                </select>
+            </div>
+            <div class="col-sm-4 col-lg-2">
+                <label class="form-label" for="statutDocument">Statut</label>
+                <select class="form-select" id="statutDocument" name="statut">
+                    <option value="">Tous</option>
+                    <option th:each="s : ${statutsDocument}" th:value="${s}" th:text="${s.libelle}"
+                            th:selected="${statutFiltre == s}">Validé</option>
+                </select>
+            </div>
+            <div class="col-sm-4 col-lg-2">
+                <label class="form-label" for="dossierDocument">Dossier</label>
+                <select class="form-select" id="dossierDocument" name="dossierId">
+                    <option value="">Tous</option>
+                    <option th:each="d : ${dossiers}" th:value="${d.id}" th:text="${d.nom}"
+                            th:selected="${dossierFiltre != null && dossierFiltre == d.id}">Comptabilité</option>
+                </select>
+            </div>
+            <div class="col-lg-2 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" type="submit">Filtrer</button>
+                <a class="btn btn-outline-secondary" th:href="@{/documents}" title="Réinitialiser">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-files me-2 text-warning"></i>Bibliothèque documentaire</span>
+            <span class="badge text-bg-light border" th:text="${#lists.size(documents)} + ' document(s)'">12 document(s)</span>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(documents)}" class="empty-state">
+                <i class="bi bi-folder-x"></i>
+                Aucun document ne correspond à ces critères.
+                <div class="mt-3">
+                    <a class="btn btn-sm btn-primary" th:href="@{/documents/nouveau}">Créer un document</a>
+                </div>
+            </div>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(documents)}">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th class="ps-4">Document</th>
+                        <th>Dossier</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th>Relecteurs</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="document : ${documents}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="doc-icon"><i class="bi bi-file-earmark-text"></i></span>
+                                <div>
+                                    <a class="fw-semibold text-decoration-none text-dark"
+                                       th:href="@{/documents/{id}(id=${document.id})}"
+                                       th:text="${document.titre}">Statuts du BDE</a>
+                                    <div class="small text-muted"
+                                         th:text="${#temporals.format(document.dateCreation, 'dd/MM/yyyy')}">01/01/2026</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="small">
+                            <a th:if="${document.dossier != null}" class="text-decoration-none"
+                               th:href="@{/dossiers/{id}(id=${document.dossier.id})}"
+                               th:text="${document.dossier.nom}">Gouvernance</a>
+                            <span th:if="${document.dossier == null}" class="text-muted">Sans dossier</span>
+                        </td>
+                        <td><span th:replace="~{fragments/layout :: badgeTypeDocument(${document.type})}"></span></td>
+                        <td><span th:replace="~{fragments/layout :: badgeDocument(${document.statut})}"></span></td>
+                        <td>
+                            <span class="badge text-bg-light border">
+                                <i class="bi bi-people me-1"></i><span th:text="${document.relecteurs.size()}">2</span>
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-1">
+                                <a class="btn btn-sm btn-outline-primary" th:href="@{/documents/{id}(id=${document.id})}"
+                                   title="Consulter"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/documents/{id}/modifier(id=${document.id})}" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

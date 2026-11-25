@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dossiers')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Mini-Drive</div>
+            <h1 class="page-title">Dossiers administratifs</h1>
+            <p class="page-subtitle">Structurez les documents du BDE par thématique et rattachez-les à un dossier.</p>
+        </div>
+        <a class="btn btn-accent" th:href="@{/dossiers/nouveau}">
+            <i class="bi bi-folder-plus me-1"></i>Nouveau dossier
+        </a>
+    </div>
+
+    <form class="filter-bar mb-4" method="get" th:action="@{/dossiers}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-9">
+                <label class="form-label" for="rechercheDossier">Rechercher</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input class="form-control border-start-0" id="rechercheDossier" name="q" type="search"
+                           placeholder="Nom, catégorie ou description…" th:value="${recherche}">
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" type="submit">Filtrer</button>
+                <a class="btn btn-outline-secondary" th:href="@{/dossiers}" title="Réinitialiser">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(dossiers)}" class="card">
+        <div class="empty-state">
+            <i class="bi bi-folder-x"></i>
+            Aucun dossier ne correspond à votre recherche.
+            <div class="mt-3">
+                <a class="btn btn-sm btn-primary" th:href="@{/dossiers/nouveau}">Créer un dossier</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" th:unless="${#lists.isEmpty(dossiers)}">
+        <div class="col-md-6 col-xl-4" th:each="dossier : ${dossiers}">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="doc-icon" style="width: 3rem; height: 3rem; font-size: 1.35rem;">
+                            <i class="bi bi-folder2-open"></i>
+                        </span>
+                        <span class="badge text-bg-light border" th:text="${dossier.documents.size()} + ' doc(s)'">4 doc(s)</span>
+                    </div>
+                    <h2 class="h5 fw-bold mb-1">
+                        <a class="text-dark text-decoration-none" th:href="@{/dossiers/{id}(id=${dossier.id})}"
+                           th:text="${dossier.nom}">Comptabilité</a>
+                    </h2>
+                    <div class="small text-warning-emphasis fw-semibold mb-2" th:text="${dossier.categorie}">Trésorerie</div>
+                    <p class="small text-muted flex-grow-1" th:text="${dossier.description != null ? dossier.description : 'Aucune description.'}">
+                        Description du dossier.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a class="btn btn-sm btn-primary flex-grow-1" th:href="@{/dossiers/{id}(id=${dossier.id})}">
+                            Ouvrir
+                        </a>
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{/dossiers/{id}/modifier(id=${dossier.id})}"
+                           title="Modifier"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

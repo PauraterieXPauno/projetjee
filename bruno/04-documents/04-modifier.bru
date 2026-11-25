@@ -1,0 +1,28 @@
+meta {
+  name: Modifier un document
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/v1/documents/{{documentId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "titre": "Devis sonorisation - gala annuel",
+    "type": "DEVIS",
+    "reference": "https://drive.bde-cytech.fr/devis/sono-gala-v2.pdf",
+    "dateCreation": "2026-11-23",
+    "dossierId": 3,
+    "relecteurIds": [2, 4],
+    "statut": null
+  }
+}

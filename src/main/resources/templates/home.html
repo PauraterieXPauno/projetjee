@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tableau de bord')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="card hero-card mb-4">
+        <div class="card-body p-4 p-lg-5">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <div class="page-kicker text-warning mb-2">Back-office du bureau des élèves</div>
+                    <h1 class="display-title display-5 mb-3">Pilotez la vie du BDE,<br>sans perdre le fil.</h1>
+                    <p class="text-soft mb-4">
+                        Administration, événements et trésorerie réunis dans un espace unique.
+                        Nous sommes le <span class="text-capitalize"
+                                             th:text="${#temporals.format(aujourdHui, 'EEEE d MMMM yyyy')}">mardi 25 novembre 2026</span>.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-accent" th:href="@{/evenements/nouveau}">
+                            <i class="bi bi-calendar-plus me-1"></i>Créer un événement
+                        </a>
+                        <a class="btn btn-outline-light" th:href="@{/documents/nouveau}">
+                            <i class="bi bi-file-earmark-plus me-1"></i>Ajouter un document
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="row g-3 text-center">
+                        <div class="col-4 col-lg-12">
+                            <div class="rounded-4 p-3 bg-white bg-opacity-10 border border-white border-opacity-10">
+                                <div class="fs-4 fw-bold" th:text="${nombreMembres}">6</div>
+                                <div class="small text-soft">Membres</div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-lg-12">
+                            <div class="rounded-4 p-3 bg-white bg-opacity-10 border border-white border-opacity-10">
+                                <div class="fs-4 fw-bold" th:text="${nombreEvenements}">5</div>
+                                <div class="small text-soft">Événements</div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-lg-12">
+                            <div class="rounded-4 p-3 bg-white bg-opacity-10 border border-white border-opacity-10">
+                                <div class="fs-4 fw-bold" th:text="${nombreDocuments}">12</div>
+                                <div class="small text-soft">Documents</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-label">Solde global</div>
+                            <p class="kpi-value money"
+                               th:classappend="${synthese.soldeGlobal.signum() >= 0} ? 'money-positive' : 'money-negative'"
+                               th:text="${#numbers.formatCurrency(synthese.soldeGlobal)}">4 560,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-green"><i class="bi bi-wallet2"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">Recettes validées − dépenses validées</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-label">Recettes validées</div>
+                            <p class="kpi-value money money-positive"
+                               th:text="${#numbers.formatCurrency(synthese.totalRecettes)}">12 000,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-green"><i class="bi bi-arrow-down-left-circle"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">Toutes opérations confondues</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-label">Dépenses validées</div>
+                            <p class="kpi-value money money-negative"
+                               th:text="${#numbers.formatCurrency(synthese.totalDepenses)}">8 400,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-red"><i class="bi bi-arrow-up-right-circle"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">Après application des habilitations</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-label">En attente</div>
+                            <p class="kpi-value money money-pending"
+                               th:text="${#numbers.formatCurrency(synthese.montantEnAttente)}">650,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-gold"><i class="bi bi-hourglass-split"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">
+                        <span th:text="${synthese.nombreEnAttente}">2</span> ligne(s) à arbitrer
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-calendar2-week me-2 text-warning"></i>Prochains événements</span>
+                    <a class="btn btn-sm btn-outline-primary" th:href="@{/evenements}">Tout voir</a>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(prochainsEvenements)}" class="empty-state">
+                        <i class="bi bi-calendar-x"></i>
+                        Aucun événement à venir pour le moment.
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(prochainsEvenements)}">
+                        <table class="table table-hover align-middle">
+                            <tbody>
+                            <tr th:each="evenement : ${prochainsEvenements}">
+                                <td class="ps-4" style="width: 4.5rem;">
+                                    <div class="event-date">
+                                        <span class="day" th:text="${#temporals.format(evenement.date, 'dd')}">12</span>
+                                        <span class="month" th:text="${#temporals.format(evenement.date, 'MMM')}">déc.</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a class="fw-bold text-decoration-none text-dark"
+                                       th:href="@{/evenements/{id}(id=${evenement.id})}"
+                                       th:text="${evenement.titre}">Soirée d'intégration</a>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i><span th:text="${evenement.lieu}">Cergy</span>
+                                    </div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div th:replace="~{fragments/layout :: badgeEvenement(${evenement.statut})}"></div>
+                                    <div class="small text-muted mt-1 money"
+                                         th:text="${#numbers.formatCurrency(evenement.budgetPrevisionnel)}">6 500,00 €</div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-activity me-2 text-warning"></i>Dernières opérations</span>
+                    <a class="btn btn-sm btn-outline-primary" th:href="@{/tresorerie}">Tout voir</a>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(dernieresLignes)}" class="empty-state py-4">
+                        <i class="bi bi-receipt"></i>
+                        Aucune opération enregistrée.
+                    </div>
+                    <ul class="list-clean" th:unless="${#lists.isEmpty(dernieresLignes)}">
+                        <li th:each="ligne : ${dernieresLignes}">
+                            <div class="d-flex align-items-center gap-2 min-w-0">
+                                <span class="kpi-icon"
+                                      th:classappend="${ligne.type.toString() == 'RECETTE'} ? 'bg-soft-green' : 'bg-soft-red'"
+                                      style="width: 2.2rem; height: 2.2rem; font-size: .95rem;">
+                                    <i class="bi"
+                                       th:classappend="${ligne.type.toString() == 'RECETTE'} ? 'bi-arrow-down-left' : 'bi-arrow-up-right'"></i>
+                                </span>
+                                <div class="min-w-0">
+                                    <div class="fw-semibold text-truncate" th:text="${ligne.libelle}">Billetterie</div>
+                                    <div class="small text-muted" th:text="${#temporals.format(ligne.dateOperation, 'dd/MM/yyyy')}">01/01/2026</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="money"
+                                     th:classappend="${ligne.type.toString() == 'RECETTE'} ? 'money-positive' : 'money-negative'"
+                                     th:text="${#numbers.formatCurrency(ligne.montant)}">4 200,00 €</div>
+                                <div class="mt-1" th:replace="~{fragments/layout :: badgeLigne(${ligne.statut})}"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-clock-history me-2 text-warning"></i>Documents récents</span>
+            <a class="btn btn-sm btn-outline-primary" th:href="@{/documents}">Ouvrir le mini-Drive</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th class="ps-4">Document</th>
+                        <th>Dossier</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th class="text-end pe-4">Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="document : ${derniersDocuments}">
+                        <td class="ps-4">
+                            <a class="fw-semibold text-decoration-none text-dark"
+                               th:href="@{/documents/{id}(id=${document.id})}"
+                               th:text="${document.titre}">Statuts</a>
+                        </td>
+                        <td class="small text-muted"
+                            th:text="${document.dossier != null ? document.dossier.nom : 'Sans dossier'}">Gouvernance</td>
+                        <td>
+                            <span th:replace="~{fragments/layout :: badgeTypeDocument(${document.type})}"></span>
+                        </td>
+                        <td>
+                            <span th:replace="~{fragments/layout :: badgeDocument(${document.statut})}"></span>
+                        </td>
+                        <td class="text-end pe-4 small text-muted"
+                            th:text="${#temporals.format(document.dateCreation, 'dd/MM/yyyy')}">01/01/2026</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

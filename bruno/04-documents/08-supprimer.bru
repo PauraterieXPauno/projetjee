@@ -1,0 +1,20 @@
+meta {
+  name: Supprimer un document
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/documents/{{documentSansJustificatifId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Le document 12 (devis photographe) n'est utilisé par aucune ligne de trésorerie.
+  Un document justificatif renvoie HTTP 400 si on tente de le supprimer.
+}

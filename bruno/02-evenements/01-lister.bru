@@ -1,0 +1,15 @@
+meta {
+  name: Lister les événements
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/evenements?statut=PLANIFIE
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Lister les lignes de trésorerie
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/tresorerie?statut=EN_ATTENTE
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

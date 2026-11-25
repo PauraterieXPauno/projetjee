@@ -1,0 +1,20 @@
+meta {
+  name: Supprimer un événement
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/evenements/{{evenementSansLignesId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  L'événement 5 (Tournoi sportif) n'a pas de lignes de trésorerie.
+  La suppression d'un événement avec des lignes validées renvoie HTTP 400.
+}

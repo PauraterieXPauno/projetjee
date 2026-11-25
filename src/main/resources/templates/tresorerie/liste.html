@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Trésorerie')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-kicker">Comptabilité</div>
+            <h1 class="page-title">Trésorerie</h1>
+            <p class="page-subtitle">Suivez recettes et dépenses. Seules les lignes validées entrent dans le solde global.</p>
+        </div>
+        <a class="btn btn-accent" th:href="@{/tresorerie/nouveau}">
+            <i class="bi bi-plus-lg me-1"></i>Nouvelle opération
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">Solde global</div>
+                            <p class="kpi-value money"
+                               th:classappend="${synthese.soldeGlobal.signum() >= 0} ? 'money-positive' : 'money-negative'"
+                               th:text="${#numbers.formatCurrency(synthese.soldeGlobal)}">4 560,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-green"><i class="bi bi-wallet2"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">Recettes validées</div>
+                            <p class="kpi-value money money-positive"
+                               th:text="${#numbers.formatCurrency(synthese.totalRecettes)}">12 000,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-green"><i class="bi bi-arrow-down-left-circle"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">Dépenses validées</div>
+                            <p class="kpi-value money money-negative"
+                               th:text="${#numbers.formatCurrency(synthese.totalDepenses)}">8 400,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-red"><i class="bi bi-arrow-up-right-circle"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="kpi-label">En attente</div>
+                            <p class="kpi-value money money-pending"
+                               th:text="${#numbers.formatCurrency(synthese.montantEnAttente)}">650,00 €</p>
+                        </div>
+                        <span class="kpi-icon bg-soft-gold"><i class="bi bi-hourglass-split"></i></span>
+                    </div>
+                    <div class="small text-muted mt-2">
+                        <span th:text="${synthese.nombreEnAttente}">2</span> ligne(s) à arbitrer
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form class="filter-bar mb-4" method="get" th:action="@{/tresorerie}">
+        <div class="row g-2 align-items-end">
+            <div class="col-lg-4">
+                <label class="form-label" for="rechercheTresorerie">Rechercher</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input class="form-control border-start-0" id="rechercheTresorerie" name="q" type="search"
+                           placeholder="Libellé, catégorie, membre…" th:value="${recherche}">
+                </div>
+            </div>
+            <div class="col-sm-4 col-lg-2">
+                <label class="form-label" for="typeLigne">Type</label>
+                <select class="form-select" id="typeLigne" name="type">
+                    <option value="">Tous</option>
+                    <option th:each="t : ${typesLigne}" th:value="${t}" th:text="${t.libelle}"
+                            th:selected="${typeFiltre == t}">Dépense</option>
+                </select>
+            </div>
+            <div class="col-sm-4 col-lg-2">
+                <label class="form-label" for="statutLigne">Statut</label>
+                <select class="form-select" id="statutLigne" name="statut">
+                    <option value="">Tous</option>
+                    <option th:each="s : ${statutsLigne}" th:value="${s}" th:text="${s.libelle}"
+                            th:selected="${statutFiltre == s}">Validée</option>
+                </select>
+            </div>
+            <div class="col-sm-4 col-lg-2">
+                <label class="form-label" for="evenementTresorerie">Événement</label>
+                <select class="form-select" id="evenementTresorerie" name="evenementId">
+                    <option value="">Tous</option>
+                    <option th:each="e : ${evenements}" th:value="${e.id}" th:text="${e.titre}"
+                            th:selected="${evenementFiltre != null && evenementFiltre == e.id}">Gala</option>
+                </select>
+            </div>
+            <div class="col-lg-2 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" type="submit">Filtrer</button>
+                <a class="btn btn-outline-secondary" th:href="@{/tresorerie}" title="Réinitialiser">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-list-ul me-2 text-warning"></i>Journal de trésorerie</span>
+            <span class="badge text-bg-light border" th:text="${#lists.size(lignes)} + ' opération(s)'">14 opération(s)</span>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(lignes)}" class="empty-state">
+                <i class="bi bi-receipt-cutoff"></i>
+                Aucune opération ne correspond à ces critères.
+                <div class="mt-3">
+                    <a class="btn btn-sm btn-primary" th:href="@{/tresorerie/nouveau}">Créer une opération</a>
+                </div>
+            </div>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(lignes)}">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th class="ps-4">Opération</th>
+                        <th>Événement</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ligne : ${lignes}">
+                        <td class="ps-4">
+                            <div class="fw-semibold" th:text="${ligne.libelle}">Billetterie</div>
+                            <div class="small text-muted">
+                                <span th:text="${ligne.categorie}">Billetterie</span>
+                                <span class="mx-1">·</span>
+                                <span th:text="${#temporals.format(ligne.dateOperation, 'dd/MM/yyyy')}">01/01/2026</span>
+                                <span class="mx-1">·</span>
+                                <span th:text="${ligne.createur.nomComplet}">Léa Bernard</span>
+                                <span th:if="${ligne.documentJustificatif != null}">
+                                    <span class="mx-1">·</span>
+                                    <a class="text-decoration-none"
+                                       th:href="@{/documents/{id}(id=${ligne.documentJustificatif.id})}"
+                                       title="Justificatif"><i class="bi bi-paperclip"></i></a>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="small">
+                            <a th:if="${ligne.evenement != null}" class="text-decoration-none"
+                               th:href="@{/evenements/{id}(id=${ligne.evenement.id})}"
+                               th:text="${ligne.evenement.titre}">Soirée</a>
+                            <span th:if="${ligne.evenement == null}" class="text-muted">Hors événement</span>
+                        </td>
+                        <td><span th:replace="~{fragments/layout :: badgeTypeLigne(${ligne.type})}"></span></td>
+                        <td class="money"
+                            th:classappend="${ligne.type.toString() == 'RECETTE'} ? 'money-positive' : 'money-negative'"
+                            th:text="${#numbers.formatCurrency(ligne.montant)}">4 200,00 €</td>
+                        <td><span th:replace="~{fragments/layout :: badgeLigne(${ligne.statut})}"></span></td>
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-1 flex-wrap justify-content-end">
+                                <form th:if="${ligne.statut.toString() != 'VALIDEE'}" method="post"
+                                      th:action="@{/tresorerie/{id}/valider(id=${ligne.id})}">
+                                    <button class="btn btn-sm btn-outline-success" type="submit" title="Valider">
+                                        <i class="bi bi-check2"></i>
+                                    </button>
+                                </form>
+                                <form th:if="${ligne.statut.toString() != 'REJETEE'}" method="post"
+                                      th:action="@{/tresorerie/{id}/rejeter(id=${ligne.id})}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" title="Rejeter">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/tresorerie/{id}/modifier(id=${ligne.id})}" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" th:action="@{/tresorerie/{id}/supprimer(id=${ligne.id})}"
+                                      onsubmit="return confirm('Supprimer cette ligne de trésorerie ?');">
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit" title="Supprimer">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-light border mt-4 small text-muted">
+        <i class="bi bi-info-circle me-2 text-warning"></i>
+        Une ligne <strong>rejetée</strong> reste dans le journal mais est exclue du solde.
+        Une dépense supérieure au plafond d'habilitation, ou créée par un membre sans habilitation active,
+        est automatiquement placée <strong>en attente</strong>.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

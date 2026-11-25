@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Erreur')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container py-5">
+    <div class="card mx-auto" style="max-width: 42rem;">
+        <div class="card-body text-center p-5">
+            <div class="display-4 fw-bold text-danger" th:text="${status != null ? status : 500}">500</div>
+            <h1 class="h3 fw-bold mt-2">Une erreur est survenue</h1>
+            <p class="text-muted">La demande n'a pas pu être traitée. Consultez les logs de l'application pour plus de détails.</p>
+            <a class="btn btn-primary mt-3" th:href="@{/}">Retour au tableau de bord</a>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

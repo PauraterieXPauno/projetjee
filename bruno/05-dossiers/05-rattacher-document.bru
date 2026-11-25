@@ -1,0 +1,19 @@
+meta {
+  name: Rattacher un document
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/dossiers/{{dossierId}}/documents/{{documentSansJustificatifId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Le document 12 (sans dossier) est rattaché au dossier 1.
+}
