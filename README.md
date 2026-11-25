@@ -27,13 +27,13 @@ bruno/                                          -> Tests API (collection Bruno)
 ## Build
 
 ```bash
-mvn clean package
+./mvnw clean package
 ```
 
 ## Run
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ou
